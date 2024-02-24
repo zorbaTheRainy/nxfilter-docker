@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron:  '34 17 * * 6'   # * is a special character in YAML so you have to quote this string
+    # - cron:  '34 17 8-14,22-28 * 6'   # run every 2nd & 4th Saturday (by limiting Saturday to 2 date ranges)
 
 jobs:
   build:
