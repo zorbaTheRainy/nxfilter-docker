@@ -56,7 +56,9 @@ jobs:
         context: .
         push: true
         platforms: linux/amd64,linux/arm/v7,linux/arm64
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ steps.curl.outputs.NXFILTER_VER_NUM }}
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ steps.curl.outputs.NXFILTER_VER_NUM }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:latest
         build-args: |
           VER_NUM=${{ steps.curl.outputs.NXFILTER_VER_NUM }}
           BUILD_TIME=${{ steps.date.outputs.BUILD_TIME }}
