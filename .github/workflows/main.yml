@@ -1,7 +1,9 @@
 name: Docker Image CI
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+  schedule:
+    - cron:  '34 17 * * 6'   # * is a special character in YAML so you have to quote this string
 
 jobs:
   build:
