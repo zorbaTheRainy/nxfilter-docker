@@ -1,21 +1,26 @@
+
 FROM ubuntu:latest
 
-LABEL maintainer="Rob Asher"
-LABEL version="4.6.8.8"
-LABEL release-date="2024-02-23"
-LABEL source="https://github.com/DeepWoods/nxfilter-docker"
+ARG VER_NUM
+ARG BUILD_TIME
+
+LABEL maintainer="Rob Asher, forked by ZorbaTheRainy to provide tags"
+LABEL version=${VER_NUM}
+LABEL release-date=${BUILD_TIME}
+# ${date +%Y-%m-%d" "%X}
+LABEL source="https://github.com/zorbaTheRainy/nxfilter-docker"
 
 ENV TZ=${TZ:-Etc/UTC}
 
 RUN apt -y update && apt -y upgrade \
   && apt -y install --no-install-recommends dnsutils iputils-ping tzdata curl openjdk-11-jre-headless \
-  && curl $(printf ' -O http://pub.nxfilter.org/nxfilter-%s.deb' $(curl https://nxfilter.org/curver.php)) \
-  && apt -y install --no-install-recommends ./$(printf 'nxfilter-%s.deb' $(curl https://nxfilter.org/curver.php)) \
+  && curl -O http://pub.nxfilter.org/nxfilter-${VER_NUM}.deb \
+  && apt -y install --no-install-recommends ./nxfilter-${VER_NUM}.deb \
   && apt -y clean autoclean \
   && apt -y autoremove \
-  && rm -rf ./$(printf 'nxfilter-%s.deb' $(curl https://nxfilter.org/curver.php)) \
+  && rm -rf ./nxfilter-${VER_NUM}.deb \
   && rm -rf /var/lib/apt && rm -rf /var/lib/dpkg && rm -rf /var/lib/cache && rm -rf /var/lib/log \
-  && echo "$(curl https://nxfilter.org/curver.php)" > /nxfilter/version.txt
+  && echo "${VER_NUM}" > /nxfilter/version.txt
 
 EXPOSE 53/udp 19004/udp 80 443 19002 19003 19004
 
