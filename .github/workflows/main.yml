@@ -17,13 +17,14 @@ jobs:
       run: |
         verNum=$(curl -s https://nxfilter.org/curver.php)
         echo "NXFILTER_VER_NUM=$verNum" >> $GITHUB_OUTPUT
-        #echo "::set-output name=output::$OUTPUT"
+        # echo "::set-output name=output::$OUTPUT"
 
     - name: Run date command
       id: date
       run: |
-        DATE=$(date +%Y-%m-%d" "%X)
-        echo "::set-output name=output::$DATE"
+        buildTime=$(date +%Y-%m-%d" "%X)
+        echo "BUILD_TIME=$buildTime" >> $GITHUB_OUTPUT
+        # echo "::set-output name=output::$DATE"
 
     - name: Login to DockerHub
       uses: docker/login-action@v2 
@@ -56,4 +57,4 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ steps.curl.outputs.NXFILTER_VER_NUM }}
         build-args: |
           VER_NUM=${{ steps.curl.outputs.NXFILTER_VER_NUM }}
-          BUILD_TIME=${{ steps.date.outputs.date }}
+          BUILD_TIME=${{ steps.date.outputs.BUILD_TIME }}
