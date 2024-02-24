@@ -2,7 +2,7 @@
 
 ## Fork ##
 This is a fork of [Deepwoods' NxFilter-docker](https://github.com/DeepWoods/nxfilter-docker).
-The only changes involve taging in Docker Hub.  
+The only changes involve tagging in Docker Hub.  
 
 While Deepwoods puts all update under "latest" ([Deepwoods's Docker Hub](https://hub.docker.com/r/deepwoods/nxfilter)), I want each image tagged with the NxFilter verision number.
 
