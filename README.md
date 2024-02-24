@@ -8,6 +8,8 @@ While Deepwoods puts all updates under the "latest" tag ([Deepwoods's Docker Hub
 
 And I am using this to learn GitHub Actions.
 
+Oh, for all the exmaples below, change "deepwoods/nxfilter" to "zorbatherainy/nxfilter".  My [Docker Hub](https://hub.docker.com/r/zorbatherainy/nxfilter)
+
 
 ## About ##
 [NxFilter](http://nxfilter.org/p3/) is a scalable and reliable DNS filtering server software by Jahastech.
