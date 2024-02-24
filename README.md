@@ -1,5 +1,14 @@
 # NxFilter #
 
+## Fork ##
+This is a fork of [Deepwoods' NxFilter-docker](https://github.com/DeepWoods/nxfilter-docker).
+The only changes involve taging in Docker Hub.  
+
+While Deepwoods puts all update under "latest" ([Deepwoods's Docker Hub](https://hub.docker.com/r/deepwoods/nxfilter)), I want each image tagged with the NxFilter verision number.
+
+And I am using this to learn GitHub Actions.
+
+
 ## About ##
 [NxFilter](http://nxfilter.org/p3/) is a scalable and reliable DNS filtering server software by Jahastech.
 
