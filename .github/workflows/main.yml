@@ -15,8 +15,15 @@ jobs:
     - name: Run curl command
       id: curl
       run: |
-        OUTPUT=$(curl -s https://nxfilter.org/curver.php)
-        echo "::set-output name=output::$OUTPUT"
+        verNum=$(curl -s https://nxfilter.org/curver.php)
+        echo "NXFILTER_VER_NUM=$verNum" >> $GITHUB_OUTPUT
+        #echo "::set-output name=output::$OUTPUT"
+
+    - name: Run date command
+      id: date
+      run: |
+        DATE=$(date +%Y-%m-%d" "%X)
+        echo "::set-output name=output::$DATE"
 
     - name: Login to DockerHub
       uses: docker/login-action@v2 
@@ -27,9 +34,9 @@ jobs:
     - name: Check if image with tag exists
       id: check
       run: |
-        TAG_EXISTS=$(curl -s -f -u ${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }} https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter/tags/${{ steps.curl.outputs.output }} > /dev/null; echo $?)
+        TAG_EXISTS=$(curl -s -f -u ${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }} https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter/tags/${{ steps.curl.outputs.NXFILTER_VER_NUM }} > /dev/null; echo $?)
         if [ "$TAG_EXISTS" -eq 0 ]; then
-          echo "Image with tag '${{ steps.curl.outputs.output }}' already exists, exiting"
+          echo "Image with tag '${{ steps.curl.outputs.NXFILTER_VER_NUM }}' already exists, exiting"
           exit 1
         fi
 
@@ -46,7 +53,7 @@ jobs:
         context: .
         push: true
         platforms: linux/amd64,linux/arm/v7,linux/arm64
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ steps.curl.outputs.output }}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ steps.curl.outputs.NXFILTER_VER_NUM }}
         build-args: |
-          VER_NUM=${{ steps.curl.outputs.output }}
-          BUILD_TIME=2023-02-24
+          VER_NUM=${{ steps.curl.outputs.NXFILTER_VER_NUM }}
+          BUILD_TIME=${{ steps.date.outputs.date }}
