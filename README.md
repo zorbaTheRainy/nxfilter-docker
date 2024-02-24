@@ -6,7 +6,7 @@ The only changes involve tagging in Docker Hub.
 
 While Deepwoods puts all updates under the "latest" tag ([Deepwoods's Docker Hub](https://hub.docker.com/r/deepwoods/nxfilter)), I want each image tagged with the NxFilter verision number.
 
-And I am using this to learn GitHub Actions.
+
 
 Oh, for all the examples below, change "deepwoods/nxfilter" to "zorbatherainy/nxfilter".  My [Docker Hub](https://hub.docker.com/r/zorbatherainy/nxfilter)
 
