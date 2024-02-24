@@ -21,13 +21,6 @@ jobs:
         echo "NXFILTER_VER_NUM=$verNum" >> $GITHUB_OUTPUT
         # echo "::set-output name=output::$OUTPUT"
 
-    - name: Run date command
-      id: date
-      run: |
-        buildTime=$(date +%Y-%m-%d" "%X)
-        echo "BUILD_TIME=$buildTime" >> $GITHUB_OUTPUT
-        # echo "::set-output name=output::$DATE"
-
     - name: Login to DockerHub
       uses: docker/login-action@v3 
       with:
@@ -42,6 +35,13 @@ jobs:
           echo "Image with tag '${{ steps.curl.outputs.NXFILTER_VER_NUM }}' already exists, exiting"
           exit 1
         fi
+
+    - name: Run date command
+      id: date
+      run: |
+        buildTime=$(date +%Y-%m-%d" "%X)
+        echo "BUILD_TIME=$buildTime" >> $GITHUB_OUTPUT
+        # echo "::set-output name=output::$DATE"
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
