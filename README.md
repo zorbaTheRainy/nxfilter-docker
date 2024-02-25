@@ -8,7 +8,7 @@ While Deepwoods puts all updates under the "latest" tag ([Deepwoods's Docker Hub
 
 
 
-Oh, for all the examples below, change "deepwoods/nxfilter" to "zorbatherainy/nxfilter".  My [Docker Hub](https://hub.docker.com/r/zorbatherainy/nxfilter)
+My [Docker Hub](https://hub.docker.com/r/zorbatherainy/nxfilter) and [GitHub]()
 
 
 ## About ##
@@ -28,7 +28,7 @@ docker run -it --name nxfilter \
    -p 80:80 \
    -p 443:443 \
    -p 19002-19004:19002-19004 \
-   deepwoods/nxfilter:latest
+   zorbatherainy/nxfilter:latest
 ```
 
 #### Detached container with persistent data volumes: ####
@@ -44,7 +44,7 @@ docker run -dt --name nxfilter \
   -p 80:80 \
   -p 443:443 \
   -p 19002-19004:19002-19004 \
-  deepwoods/nxfilter:latest
+  zorbatherainy/nxfilter:latest
 ```
 
 
@@ -62,7 +62,7 @@ version: '3.5'
 
 services:
   nxfilter:
-    image: deepwoods/nxfilter:latest
+    image: zorbatherainy/nxfilter:latest
     container_name: nxfilter
     hostname: nxfilter
     restart: unless-stopped
@@ -84,6 +84,20 @@ volumes:
   nxflog:
 ```
 
+### Troubleshooting ###
+I noticed that with recent veriosn of NxFilter, if you use **empty** `bind mounts` instead of `volumes`, it tends to fail with an NullPointer exception.
+
+The way I fixed this was to either (a) copy the config from another instance (for migration), or (b) start up with a `volume` and then copy the volume's contents to the `bind mount`.
+
+Example of option B
+   ```
+   # Run a container with the source volume mounted
+   docker run -d --name=source_container -v source_volume:/source busybox
+   
+   # Copy files from container to bind mount
+   docker cp source_container:/source/. /tmp/target_dir
+   ```
+
 ### Useful Commands ###
 docker-compose to start and detach container: `docker-compose up -d`
 
@@ -101,7 +115,7 @@ Open a bash shell on running container name: `docker exec -it nxfilter /bin/bash
 > Remove container & persistent volumes(clean slate): `docker-compose down && docker volume prune`
 
 ## Updating ##
-1. Pull the latest container.  `docker pull deepwoods/nxfilter:latest`
+1. Pull the latest container.  `docker pull zorbatherainy/nxfilter:latest`
 2. Stop and remove the current container.  `docker stop nxfilter && docker rm nxfilter`
 > **Note** If using docker-compose:  `docker-compose down`
 3. Run the new container with the same command from above.  [Detached container](#detached-container-with-persistent-data-volumes)
