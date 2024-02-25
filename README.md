@@ -4,11 +4,11 @@
 This is a fork of [Deepwoods' NxFilter-docker](https://github.com/DeepWoods/nxfilter-docker).
 The only changes involve tagging in Docker Hub.  
 
-While Deepwoods puts all updates under the "latest" tag ([Deepwoods's Docker Hub](https://hub.docker.com/r/deepwoods/nxfilter)), I want each image tagged with the NxFilter verision number.
+While Deepwoods puts all updates under the "latest" tag ([Deepwoods's Docker Hub](https://hub.docker.com/r/deepwoods/nxfilter)), I want each image tagged with the NxFilter version number.
 
 
 
-My [Docker Hub](https://hub.docker.com/r/zorbatherainy/nxfilter) and [GitHub]()
+My [Docker Hub](https://hub.docker.com/r/zorbatherainy/nxfilter) and [GitHub](https://github.com/zorbaTheRainy/nxfilter-docker)
 
 
 ## About ##
@@ -85,7 +85,7 @@ volumes:
 ```
 
 ### Troubleshooting ###
-I noticed that with recent veriosn of NxFilter, if you use **empty** `bind mounts` instead of `volumes` (i.e., there is nothing in the mount's direcotries, a clean start), NxFilter tends to fail with an NullPointer exception (see your container logs).
+I noticed that with recent versions of NxFilter, if you use **empty** `bind mounts` instead of `volumes` (i.e., there is nothing in the mount's directories, a clean start), NxFilter tends to fail with an NullPointer exception (see your container logs).
 
 The way I fixed this was to either (a) copy the config from another instance (if you're migrating), or (b) start up with a `volume` (to create the initial config) and then copy the volume's contents to the `bind mount`, or (c) just use `volumes`, don't use `bind mounts`.
 
