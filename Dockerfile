@@ -1,4 +1,3 @@
-
 FROM ubuntu:latest
 
 ARG VER_NUM
@@ -7,7 +6,6 @@ ARG BUILD_TIME
 LABEL maintainer="Rob Asher, forked by ZorbaTheRainy to provide tags"
 LABEL version=${VER_NUM}
 LABEL release-date=${BUILD_TIME}
-# ${date +%Y-%m-%d" "%X}
 LABEL source="https://github.com/zorbaTheRainy/nxfilter-docker"
 
 ENV TZ=${TZ:-Etc/UTC}
