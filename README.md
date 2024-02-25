@@ -85,9 +85,9 @@ volumes:
 ```
 
 ### Troubleshooting ###
-I noticed that with recent veriosn of NxFilter, if you use **empty** `bind mounts` instead of `volumes`, it tends to fail with an NullPointer exception.
+I noticed that with recent veriosn of NxFilter, if you use **empty** `bind mounts` instead of `volumes` (i.e., there is nothing in the mount's direcotries, a clean start), NxFilter tends to fail with an NullPointer exception (see your container logs).
 
-The way I fixed this was to either (a) copy the config from another instance (for migration), or (b) start up with a `volume` and then copy the volume's contents to the `bind mount`.
+The way I fixed this was to either (a) copy the config from another instance (if you're migrating), or (b) start up with a `volume` (to create the initial config) and then copy the volume's contents to the `bind mount`, or (c) just use `volumes`, don't use `bind mounts`.
 
 Example of option B
    ```
