@@ -6,7 +6,7 @@ The only changes involve tagging in Docker Hub.
 
 While Deepwoods puts all updates under the "latest" tag ([Deepwoods's Docker Hub](https://hub.docker.com/r/deepwoods/nxfilter)), I want each image tagged with the NxFilter version number.
 
-All the magic occurs via GitHub Actions.  Once a week, it checks to see if the NXFilter team has put out a new version and, if so, creates a Docker image and uploads it to Docker Hub.  As such, you won't see a lot of releases or check-ins here on GitHub.  The automation does what is needed.  The updates are seen on DockerHub.
+All the magic occurs via GitHub Actions.  Once a week, it checks to see if the NXFilter team has put out a new version and, if so, it creates a Docker image and uploads the image to Docker Hub.  As such, you won't see a lot of releases or check-ins here on GitHub.  The automation does what is needed.  The updates are seen on DockerHub.
 
 
 
