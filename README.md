@@ -10,7 +10,7 @@ All the magic occurs via GitHub Actions.  Once a week, it checks to see if the N
 
 
 
-My [Docker Hub](https://hub.docker.com/r/zorbatherainy/nxfilter) and [GitHub](https://github.com/zorbaTheRainy/nxfilter-docker)
+My links to: [Docker Hub](https://hub.docker.com/r/zorbatherainy/nxfilter) and [GitHub](https://github.com/zorbaTheRainy/nxfilter-docker)
 
 
 ## About ##
