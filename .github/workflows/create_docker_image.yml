@@ -34,7 +34,7 @@ jobs:
         TAG_EXISTS=$(curl -s -f -u ${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }} https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter/tags/${{ steps.curl.outputs.NXFILTER_VER_NUM }} > /dev/null; echo $?)
         if [ "$TAG_EXISTS" -eq 0 ]; then
           echo "Image with tag '${{ steps.curl.outputs.NXFILTER_VER_NUM }}' already exists, exiting"
-          exit 1
+          exit 0
         fi
 
     - name: Run date command
