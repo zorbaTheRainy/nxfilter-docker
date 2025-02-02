@@ -1,4 +1,4 @@
-name: NxFilter create Docker Image CI
+name: NxFilter Create Docker Image CI
 
 on:
   workflow_dispatch:
