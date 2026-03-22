@@ -14,6 +14,8 @@ jobs:
       NXF_VER: ${{ steps.version.outputs.NXF_VER }}
       BUILD_TIME: ${{ steps.date.outputs.BUILD_TIME }}
       SKIP_BUILD: ${{ steps.check.outputs.tag_exists }}
+      OWNER: ${{ steps.owner.outputs.OWNER }}
+      GHCR_REPO: ${{ steps.owner.outputs.GHCR_REPO }}
 
     steps:
       - name: Get NxFilter version
@@ -27,6 +29,13 @@ jobs:
         run: |
           buildTime=$(date +%Y-%m-%d)
           echo "BUILD_TIME=$buildTime" >> $GITHUB_OUTPUT
+
+      - name: Lowercase owner and build GHCR_REPO
+        id: owner
+        run: |
+          OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
+          echo "OWNER=$OWNER" >> $GITHUB_OUTPUT
+          echo "GHCR_REPO=ghcr.io/$OWNER/nxfilter" >> $GITHUB_OUTPUT
 
       - name: Check if image with tag already exists on Docker Hub
         id: check
@@ -43,6 +52,8 @@ jobs:
         run: |
           echo "NxFilter Version: ${{ steps.version.outputs.NXF_VER }}"
           echo "Build Date: ${{ steps.date.outputs.BUILD_TIME }}"
+          echo "Lowercase Owner: ${{ steps.owner.outputs.OWNER }}"
+          echo "GHCR_REPO: ${{ steps.owner.outputs.GHCR_REPO }}"
           echo "Skip Build: ${{ steps.check.outputs.tag_exists }}"
 
   build_ghcr:
@@ -88,7 +99,7 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/nxfilter:${{ needs.prep.outputs.NXF_VER }}-${{ matrix.arch_tag }}
+            ${{ needs.prep.outputs.GHCR_REPO }}:${{ needs.prep.outputs.NXF_VER }}-${{ matrix.arch_tag }}
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
             VER_NUM=${{ needs.prep.outputs.NXF_VER }}
@@ -112,8 +123,7 @@ jobs:
 
       - name: Merge GHCR manifests
         run: |
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          GHCR_REPO=ghcr.io/$OWNER/nxfilter
+          GHCR_REPO=${{ needs.prep.outputs.GHCR_REPO }}
           NXF_VER=${{ needs.prep.outputs.NXF_VER }}
 
           docker buildx imagetools create \
@@ -148,8 +158,7 @@ jobs:
 
       - name: Copy multi-arch images from GHCR to Docker Hub
         run: |
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          GHCR_REPO=ghcr.io/$OWNER/nxfilter
+          GHCR_REPO=${{ needs.prep.outputs.GHCR_REPO }}
           DH_REPO=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter
           NXF_VER=${{ needs.prep.outputs.NXF_VER }}
 
