@@ -39,6 +39,7 @@ jobs:
             https://ghcr.io/v2/${GHCR_REPO#ghcr.io/}/tags/list \
             | jq -r '.tags[]?' )
 
+          echo "$TAGS"
           echo "TAGS<<EOF" >> $GITHUB_OUTPUT
           echo "$TAGS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
