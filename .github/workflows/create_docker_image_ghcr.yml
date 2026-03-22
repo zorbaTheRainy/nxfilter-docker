@@ -132,11 +132,15 @@ jobs:
 
           docker buildx imagetools create \
             -t ${GHCR_REPO}:${NXF_VER} \
-            ${GHCR_REPO}:${NXF_VER}-amd64
+            ${GHCR_REPO}:${NXF_VER}-amd64 \
+            ${GHCR_REPO}:${NXF_VER}-arm64 \
+            ${GHCR_REPO}:${NXF_VER}-armv7
 
           docker buildx imagetools create \
             -t ${GHCR_REPO}:latest \
-            ${GHCR_REPO}:${NXF_VER}-amd64
+            ${GHCR_REPO}:${NXF_VER}-amd64 \
+            ${GHCR_REPO}:${NXF_VER}-arm64 \
+            ${GHCR_REPO}:${NXF_VER}-armv7
 
   copy_to_dockerhub:
     runs-on: ubuntu-latest
