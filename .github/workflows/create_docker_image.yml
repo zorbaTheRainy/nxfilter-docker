@@ -122,14 +122,14 @@ jobs:
             ${DOCKER_REPO}:${NXF_VER}-armv7
 
       - name: Clean-up temp tags
-      run: |
-        DOCKER_REPO=${{ secrets.DOCKERHUB_USERNAME }}/nxfilter
-        NXF_VER=${{ needs.prep.outputs.NXF_VER }}
-        for arch in amd64 arm64 armv7; do
-          echo "Deleting tag ${NXF_VER}-${arch}"
-          curl -X DELETE \
-            -u "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" \
-            "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter/tags/${NXF_VER}-${arch}/" \
-            || true
-        done
-            
+        run: |
+          DOCKER_REPO=${{ secrets.DOCKERHUB_USERNAME }}/nxfilter
+          NXF_VER=${{ needs.prep.outputs.NXF_VER }}
+
+          for arch in amd64 arm64 armv7; do
+            echo "Deleting tag ${NXF_VER}-${arch}"
+            curl -X DELETE \
+              -u "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}" \
+              "https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter/tags/${NXF_VER}-${arch}/" \
+              || true
+          done
