@@ -16,7 +16,6 @@ jobs:
       - name: Set Repo name
         id: repo_name
         run: |
-          # echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_OUTPUT
           echo "REPO_NAME=nxfilter" >> $GITHUB_OUTPUT
 
       - name: Normalize GHCR_REPO to lowercase
@@ -38,7 +37,7 @@ jobs:
           TAGS=$(curl -s \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             https://ghcr.io/v2/${GHCR_REPO#ghcr.io/}/tags/list \
-            | jq -r '.tags[]')
+            | jq -r '.tags[]?')
 
           echo "TAGS<<EOF" >> $GITHUB_OUTPUT
           echo "$TAGS" >> $GITHUB_OUTPUT
@@ -49,17 +48,21 @@ jobs:
           # Define patterns you want to delete
           ARCH_PATTERNS=("-amd64" "-arm64" "-armv7" "-armv2")
 
-          # Loop through all tags returned by GHCR
-          for TAG in ${{ steps.tags.outputs.TAGS }}; do
+          # Convert GHCR tag list into a bash array (safe even if empty)
+          readarray -t TAG_LIST <<< "${{ steps.tags.outputs.TAGS }}"
+
+          echo "Found ${#TAG_LIST[@]} tags in GHCR"
+          echo "Patterns to delete: ${ARCH_PATTERNS[*]}"
+
+          for TAG in "${TAG_LIST[@]}"; do
             MATCHED=false
 
-            # Check each pattern
             for PATTERN in "${ARCH_PATTERNS[@]}"; do
               if [[ "$TAG" == *"$PATTERN" ]]; then
                 MATCHED=true
                 echo "Deleting tag: $TAG (matched pattern: $PATTERN)"
 
-                # Delete the tag; ignore errors if it doesn't exist
+                # Delete the tag; ignore errors (404, etc.)
                 curl -s -X DELETE \
                   -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                   "https://ghcr.io/v2/${GHCR_REPO#ghcr.io/}/manifests/$TAG" \
@@ -73,6 +76,8 @@ jobs:
               echo "Skipping tag: $TAG"
             fi
           done
+
+          echo "Cleanup complete."
 
       - name: Delete untagged manifests
         run: |
