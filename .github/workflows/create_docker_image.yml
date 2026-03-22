@@ -83,7 +83,6 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ needs.prep.outputs.NXF_VER }}-${{ matrix.arch_tag }} 
-            # ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:latest
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
             VER_NUM=${{ needs.prep.outputs.NXF_VER }}
