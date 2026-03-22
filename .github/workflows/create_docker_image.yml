@@ -125,8 +125,6 @@ jobs:
       run: |
         DOCKER_REPO=${{ secrets.DOCKERHUB_USERNAME }}/nxfilter
         NXF_VER=${{ needs.prep.outputs.NXF_VER }}
-
-        # Clean up temp tags
         for arch in amd64 arm64 armv7; do
           echo "Deleting tag ${NXF_VER}-${arch}"
           curl -X DELETE \
