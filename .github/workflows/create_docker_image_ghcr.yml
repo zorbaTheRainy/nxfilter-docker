@@ -60,13 +60,12 @@ jobs:
           - platform: linux/amd64
             arch_tag: amd64
             base_image: dhi.io/debian-base:trixie-debian13-dev
-          # Uncomment when ready:
-          # - platform: linux/arm64
-          #   arch_tag: arm64
-          #   base_image: dhi.io/debian-base:trixie-debian13-dev
-          # - platform: linux/arm/v7
-          #   arch_tag: armv7
-          #   base_image: ubuntu:latest
+          - platform: linux/arm64
+            arch_tag: arm64
+            base_image: dhi.io/debian-base:trixie-debian13-dev
+          - platform: linux/arm/v7
+            arch_tag: armv7
+            base_image: ubuntu:latest
 
     steps:
       - name: Normalize GHCR_REPO to lowercase
