@@ -121,6 +121,6 @@ jobs:
             ${DOCKER_REPO}:${NXF_VER}-arm64 \
             ${DOCKER_REPO}:${NXF_VER}-armv7
           # Clean up temp tags
-          # docker manifest rm ${DOCKER_REPO}:${NXF_VER}-amd64 || true
-          # docker manifest rm ${DOCKER_REPO}:${NXF_VER}-arm64 || true
-          # docker manifest rm ${DOCKER_REPO}:${NXF_VER}-armv7 || true
+          docker buildx imagetools rm ${DOCKER_REPO}:${NXF_VER}-amd64 || true
+          docker buildx imagetools rm ${DOCKER_REPO}:${NXF_VER}-arm64 || true
+          docker buildx imagetools rm ${DOCKER_REPO}:${NXF_VER}-armv7 || true
