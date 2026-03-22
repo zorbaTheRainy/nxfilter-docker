@@ -2,8 +2,6 @@ name: NxFilter Create Docker GHCR Image CI
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '34 17 * * 6'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -58,7 +56,7 @@ jobs:
           - platform: linux/amd64
             arch_tag: amd64
             base_image: dhi.io/debian-base:trixie-debian13-dev
-          # Uncomment these when ready:
+          # Uncomment when ready:
           # - platform: linux/arm64
           #   arch_tag: arm64
           #   base_image: dhi.io/debian-base:trixie-debian13-dev
@@ -90,7 +88,7 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           tags: |
-            ghcr.io/${{ github.repository_owner,, }}/nxfilter:${{ needs.prep.outputs.NXF_VER }}-${{ matrix.arch_tag }}
+            ghcr.io/${{ github.repository_owner }}/nxfilter:${{ needs.prep.outputs.NXF_VER }}-${{ matrix.arch_tag }}
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
             VER_NUM=${{ needs.prep.outputs.NXF_VER }}
@@ -114,20 +112,17 @@ jobs:
 
       - name: Merge GHCR manifests
         run: |
-          GHCR_REPO=ghcr.io/${{ github.repository_owner,, }}/nxfilter
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          GHCR_REPO=ghcr.io/$OWNER/nxfilter
           NXF_VER=${{ needs.prep.outputs.NXF_VER }}
 
           docker buildx imagetools create \
             -t ${GHCR_REPO}:${NXF_VER} \
-            ${GHCR_REPO}:${NXF_VER}-amd64 \
-            ${GHCR_REPO}:${NXF_VER}-arm64 \
-            ${GHCR_REPO}:${NXF_VER}-armv7
+            ${GHCR_REPO}:${NXF_VER}-amd64
 
           docker buildx imagetools create \
             -t ${GHCR_REPO}:latest \
-            ${GHCR_REPO}:${NXF_VER}-amd64 \
-            ${GHCR_REPO}:${NXF_VER}-arm64 \
-            ${GHCR_REPO}:${NXF_VER}-armv7
+            ${GHCR_REPO}:${NXF_VER}-amd64
 
   copy_to_dockerhub:
     runs-on: ubuntu-latest
@@ -153,7 +148,8 @@ jobs:
 
       - name: Copy multi-arch images from GHCR to Docker Hub
         run: |
-          GHCR_REPO=ghcr.io/${{ github.repository_owner,, }}/nxfilter
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          GHCR_REPO=ghcr.io/$OWNER/nxfilter
           DH_REPO=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter
           NXF_VER=${{ needs.prep.outputs.NXF_VER }}
 
