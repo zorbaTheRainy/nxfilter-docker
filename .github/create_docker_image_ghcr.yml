@@ -1,4 +1,4 @@
-name: NxFilter Create Docker Image CI
+name: NxFilter Create Docker GHCR-DH Image CI
 
 on:
   workflow_dispatch:
