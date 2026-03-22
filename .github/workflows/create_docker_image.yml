@@ -110,7 +110,7 @@ jobs:
           docker manifest create ${DOCKER_REPO}:latest \
           ${DOCKER_REPO}:${NXF_VER}-amd64 \
           ${DOCKER_REPO}:${NXF_VER}-arm64 \
-            ${DOCKER_REPO}:latest-armv7
+          ${DOCKER_REPO}:${NXF_VER}-armv7
           # Push the merged manifests
           docker manifest push ${DOCKER_REPO}:${NXF_VER}
           docker manifest push ${DOCKER_REPO}:latest
