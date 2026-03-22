@@ -51,10 +51,13 @@ jobs:
       matrix:
         include:
           - platform: linux/amd64
+            arch_tag: amd64
             base_image: dhi.io/debian-base:trixie-debian13-dev
           - platform: linux/arm64
+            arch_tag: arm64
             base_image: dhi.io/debian-base:trixie-debian13-dev
           - platform: linux/arm/v7
+            arch_tag: armv7
             base_image: ubuntu:latest
     steps:
       - name: Checkout
@@ -79,9 +82,40 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ needs.prep.outputs.NXF_VER }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ needs.prep.outputs.NXF_VER }}-${{ matrix.arch_tag }} 
+            # ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:latest
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
             VER_NUM=${{ needs.prep.outputs.NXF_VER }}
             BUILD_DATE=${{ needs.prep.outputs.BUILD_TIME }}
+
+  merge:
+    runs-on: ubuntu-latest
+    needs: [prep, build]
+    if: needs.prep.outputs.SKIP_BUILD != 'yes'
+    steps:
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Merge manifests
+        run: |
+          DOCKER_REPO=${{ secrets.DOCKERHUB_USERNAME }}/nxfilter
+          NXF_VER=${{ needs.prep.outputs.NXF_VER }}
+          # Create final manifest from the 2 separate builds
+          docker manifest create ${DOCKER_REPO}:${NXF_VER} \
+          ${DOCKER_REPO}:${NXF_VER}-amd64 \
+          ${DOCKER_REPO}:${NXF_VER}-arm64 \
+          ${DOCKER_REPO}:${NXF_VER}-armv7
+          docker manifest create ${DOCKER_REPO}:latest \
+          ${DOCKER_REPO}:${NXF_VER}-amd64 \
+          ${DOCKER_REPO}:${NXF_VER}-arm64 \
+            ${DOCKER_REPO}:latest-armv7
+          # Push the merged manifests
+          docker manifest push ${DOCKER_REPO}:${NXF_VER}
+          docker manifest push ${DOCKER_REPO}:latest
+          # Clean up temp tags
+          docker manifest rm ${DOCKER_REPO}:${NXF_VER}-amd64 || true
+          docker manifest rm ${DOCKER_REPO}:${NXF_VER}-arm64 || true
+          docker manifest rm ${DOCKER_REPO}:${NXF_VER}-armv7 || true
