@@ -98,22 +98,28 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Merge manifests
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+  
+      - name: Merge manifests using imagetools
         run: |
           DOCKER_REPO=${{ secrets.DOCKERHUB_USERNAME }}/nxfilter
           NXF_VER=${{ needs.prep.outputs.NXF_VER }}
-          # Create final manifest from the 2 separate builds
-          docker manifest create ${DOCKER_REPO}:${NXF_VER} \
-          ${DOCKER_REPO}:${NXF_VER}-amd64 \
-          ${DOCKER_REPO}:${NXF_VER}-arm64 \
-          ${DOCKER_REPO}:${NXF_VER}-armv7
-          docker manifest create ${DOCKER_REPO}:latest \
-          ${DOCKER_REPO}:${NXF_VER}-amd64 \
-          ${DOCKER_REPO}:${NXF_VER}-arm64 \
-          ${DOCKER_REPO}:${NXF_VER}-armv7
-          # Push the merged manifests
-          docker manifest push ${DOCKER_REPO}:${NXF_VER}
-          docker manifest push ${DOCKER_REPO}:latest
+
+          # Versioned manifest
+          docker buildx imagetools create \
+            -t ${DOCKER_REPO}:${NXF_VER} \
+            ${DOCKER_REPO}:${NXF_VER}-amd64 \
+            ${DOCKER_REPO}:${NXF_VER}-arm64 \
+            ${DOCKER_REPO}:${NXF_VER}-armv7
+
+          # Latest manifest
+          docker buildx imagetools create \
+            -t ${DOCKER_REPO}:latest \
+            ${DOCKER_REPO}:${NXF_VER}-amd64 \
+            ${DOCKER_REPO}:${NXF_VER}-arm64 \
+            ${DOCKER_REPO}:${NXF_VER}-armv7
           # Clean up temp tags
           # docker manifest rm ${DOCKER_REPO}:${NXF_VER}-amd64 || true
           # docker manifest rm ${DOCKER_REPO}:${NXF_VER}-arm64 || true
