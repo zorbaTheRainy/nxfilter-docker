@@ -11,17 +11,16 @@ LABEL source="https://github.com/zorbaTheRainy/nxfilter-docker"
 
 ENV TZ=${TZ:-Etc/UTC}
 
-RUN apt-get -y update
-RUN apt -y upgrade
-RUN apt -y install --no-install-recommends dnsutils iputils-ping tzdata curl
-RUN apt -y install --no-install-recommends openjdk-21-jre-headless
-RUN curl -O http://pub.nxfilter.org/nxfilter-${VER_NUM}.deb
-RUN apt -y install --no-install-recommends ./nxfilter-${VER_NUM}.deb
-RUN apt -y clean autoclean
-RUN apt -y autoremove
-RUN rm -rf ./nxfilter-${VER_NUM}.deb
-RUN rm -rf /var/lib/apt /var/lib/dpkg /var/lib/cache /var/lib/log
-RUN echo "${VER_NUM}" > /nxfilter/version.txt
+RUN apt -y update && apt -y upgrade \
+  && apt -y install --no-install-recommends dnsutils iputils-ping tzdata curl \
+  && apt -y install --no-install-recommends openjdk-21-jre-headless \
+  && curl -O http://pub.nxfilter.org/nxfilter-${VER_NUM}.deb \
+  && apt -y install --no-install-recommends ./nxfilter-${VER_NUM}.deb \
+  && apt -y clean autoclean \
+  && apt -y autoremove \
+  && rm -rf ./nxfilter-${VER_NUM}.deb \
+  && rm -rf /var/lib/apt && rm -rf /var/lib/dpkg && rm -rf /var/lib/cache && rm -rf /var/lib/log \
+  && echo "${VER_NUM}" > /nxfilter/version.txt
 
 EXPOSE 53/udp 19004/udp 80 443 19002 19003 19004
 
