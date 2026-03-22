@@ -1,10 +1,12 @@
-name: NxFilter Create Docker GHCR-DH Image CI
+name: NxFilter Create Docker GHCR Image CI
 
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '34 17 * * 6'   # * is a special character in YAML so you have to quote this string
-    # - cron:  '34 17 8-14,22-28 * 6'   # run every 2nd & 4th Saturday (by limiting Saturday to 2 date ranges)
+    - cron: '34 17 * * 6'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   prep:
@@ -45,7 +47,7 @@ jobs:
           echo "Build Date: ${{ steps.date.outputs.BUILD_TIME }}"
           echo "Skip Build: ${{ steps.check.outputs.tag_exists }}"
 
-  build:
+  build_ghcr:
     runs-on: ubuntu-latest
     needs: prep
     if: needs.prep.outputs.SKIP_BUILD != 'yes'
