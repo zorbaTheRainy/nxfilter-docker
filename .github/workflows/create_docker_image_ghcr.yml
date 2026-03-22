@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      REPO_NAME: ${{ steps.check.outputs.REPO_NAME }}
+      REPO_NAME: ${{ steps.repo_name.outputs.REPO_NAME }}
       NXF_VER: ${{ steps.version.outputs.NXF_VER }}
       BUILD_TIME: ${{ steps.date.outputs.BUILD_TIME }}
       SKIP_BUILD: ${{ steps.check.outputs.TAG_EXISTS }}
@@ -45,7 +45,7 @@ jobs:
 
       - name: Show workflow variables
         run: |
-          echo "Repository Name: ${{ steps.version.outputs.REPO_NAME }}"
+          echo "Repository Name: ${{ steps.repo_name.outputs.REPO_NAME }}"
           echo "NxFilter Version: ${{ steps.version.outputs.NXF_VER }}"
           echo "Build Date: ${{ steps.date.outputs.BUILD_TIME }}"
           echo "Skip Build: ${{ steps.check.outputs.tag_exists }}"
