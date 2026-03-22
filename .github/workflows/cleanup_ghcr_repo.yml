@@ -37,7 +37,7 @@ jobs:
           TAGS=$(curl -s \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             https://ghcr.io/v2/${GHCR_REPO#ghcr.io/}/tags/list \
-            | jq -r '.tags[]?')
+            | jq -r '.tags[]?' )
 
           echo "TAGS<<EOF" >> $GITHUB_OUTPUT
           echo "$TAGS" >> $GITHUB_OUTPUT
@@ -48,8 +48,8 @@ jobs:
           # Define patterns you want to delete
           ARCH_PATTERNS=("-amd64" "-arm64" "-armv7" "-armv2")
 
-          # Convert GHCR tag list into a bash array (safe even if empty)
-          readarray -t TAG_LIST <<< "${{ steps.tags.outputs.TAGS }}"
+          # Convert GHCR tag list into a bash array, removing empty lines
+          readarray -t TAG_LIST <<< "$(printf "%s\n" "${{ steps.tags.outputs.TAGS }}" | sed '/^$/d')"
 
           echo "Found ${#TAG_LIST[@]} tags in GHCR"
           echo "Patterns to delete: ${ARCH_PATTERNS[*]}"
