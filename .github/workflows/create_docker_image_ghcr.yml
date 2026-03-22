@@ -14,8 +14,6 @@ jobs:
       NXF_VER: ${{ steps.version.outputs.NXF_VER }}
       BUILD_TIME: ${{ steps.date.outputs.BUILD_TIME }}
       SKIP_BUILD: ${{ steps.check.outputs.tag_exists }}
-      OWNER: ${{ steps.owner.outputs.OWNER }}
-      GHCR_REPO: ${{ steps.owner.outputs.GHCR_REPO }}
 
     steps:
       - name: Get NxFilter version
@@ -29,13 +27,6 @@ jobs:
         run: |
           buildTime=$(date +%Y-%m-%d)
           echo "BUILD_TIME=$buildTime" >> $GITHUB_OUTPUT
-
-      - name: Lowercase owner and build GHCR_REPO
-        id: owner
-        run: |
-          OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')
-          echo "OWNER=$OWNER" >> $GITHUB_OUTPUT
-          echo "GHCR_REPO=ghcr.io/$OWNER/nxfilter" >> $GITHUB_OUTPUT
 
       - name: Check if image with tag already exists on Docker Hub
         id: check
@@ -52,14 +43,16 @@ jobs:
         run: |
           echo "NxFilter Version: ${{ steps.version.outputs.NXF_VER }}"
           echo "Build Date: ${{ steps.date.outputs.BUILD_TIME }}"
-          echo "Lowercase Owner: ${{ steps.owner.outputs.OWNER }}"
-          echo "GHCR_REPO: ${{ steps.owner.outputs.GHCR_REPO }}"
           echo "Skip Build: ${{ steps.check.outputs.tag_exists }}"
 
   build_ghcr:
     runs-on: ubuntu-latest
     needs: prep
     if: needs.prep.outputs.SKIP_BUILD != 'yes'
+
+    env:
+      OWNER: ${{ github.repository_owner }}
+      GHCR_REPO: ghcr.io/${{ github.repository_owner }}/nxfilter
 
     strategy:
       matrix:
@@ -76,6 +69,11 @@ jobs:
           #   base_image: ubuntu:latest
 
     steps:
+      - name: Normalize GHCR_REPO to lowercase
+        run: |
+          OWNER_LC=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          echo "GHCR_REPO=ghcr.io/$OWNER_LC/nxfilter" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -99,7 +97,7 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           tags: |
-            ${{ needs.prep.outputs.GHCR_REPO }}:${{ needs.prep.outputs.NXF_VER }}-${{ matrix.arch_tag }}
+            ${{ env.GHCR_REPO }}:${{ needs.prep.outputs.NXF_VER }}-${{ matrix.arch_tag }}
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
             VER_NUM=${{ needs.prep.outputs.NXF_VER }}
@@ -110,7 +108,15 @@ jobs:
     needs: [prep, build_ghcr]
     if: needs.prep.outputs.SKIP_BUILD != 'yes'
 
+    env:
+      OWNER: ${{ github.repository_owner }}
+
     steps:
+      - name: Normalize GHCR_REPO to lowercase
+        run: |
+          OWNER_LC=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          echo "GHCR_REPO=ghcr.io/$OWNER_LC/nxfilter" >> $GITHUB_ENV
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -123,7 +129,6 @@ jobs:
 
       - name: Merge GHCR manifests
         run: |
-          GHCR_REPO=${{ needs.prep.outputs.GHCR_REPO }}
           NXF_VER=${{ needs.prep.outputs.NXF_VER }}
 
           docker buildx imagetools create \
@@ -139,7 +144,15 @@ jobs:
     needs: [prep, merge_ghcr]
     if: needs.prep.outputs.SKIP_BUILD != 'yes'
 
+    env:
+      OWNER: ${{ github.repository_owner }}
+
     steps:
+      - name: Normalize GHCR_REPO to lowercase
+        run: |
+          OWNER_LC=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+          echo "GHCR_REPO=ghcr.io/$OWNER_LC/nxfilter" >> $GITHUB_ENV
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -158,7 +171,6 @@ jobs:
 
       - name: Copy multi-arch images from GHCR to Docker Hub
         run: |
-          GHCR_REPO=${{ needs.prep.outputs.GHCR_REPO }}
           DH_REPO=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter
           NXF_VER=${{ needs.prep.outputs.NXF_VER }}
 
