@@ -7,60 +7,81 @@ on:
     # - cron:  '34 17 8-14,22-28 * 6'   # run every 2nd & 4th Saturday (by limiting Saturday to 2 date ranges)
 
 jobs:
-  build:
-
+  prep:
     runs-on: ubuntu-latest
 
+    outputs:
+      NXF_VER: ${{ steps.version.outputs.NXF_VER }}
+      BUILD_TIME: ${{ steps.date.outputs.BUILD_TIME }}
+      SKIP_BUILD: ${{ steps.check.outputs.tag_exists }}
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Get NxFilter version
+        id: version
+        run: |
+          ver=$(curl -s https://nxfilter.org/curver.php)
+          echo "NXF_VER=$ver" >> $GITHUB_OUTPUT
 
-    - name: Run curl command
-      id: curl
-      run: |
-        verNum=$(curl -s https://nxfilter.org/curver.php)
-        echo "NXFILTER_VER_NUM=$verNum" >> $GITHUB_OUTPUT
-        # echo "::set-output name=output::$OUTPUT"
+      - name: Run date command
+        id: date
+        run: |
+          buildTime=$(date +%Y-%m-%d)
+          echo "BUILD_TIME=$buildTime" >> $GITHUB_OUTPUT
 
-    - name: Login to DockerHub
-      uses: docker/login-action@v3 
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Check if image with tag already exists
+        id: check
+        run: |
+          TAG_EXISTS=$(curl -s -f -u ${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }} https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter/tags/${{ steps.version.outputs.NXF_VER }}" > /dev/null && echo "yes" || echo "no")
+          echo "tag_exists=$TAG_EXISTS" >> $GITHUB_OUTPUT
+          if [ "$TAG_EXISTS" = "yes" ]; then
+            echo "::notice::Image with tag '${{ steps.version.outputs.NXF_VER }}' already exists, skipping build"
+          fi
 
-    - name: Check if image with tag exists
-      id: check
-      run: |
-        TAG_EXISTS=$(curl -s -f -u ${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }} https://hub.docker.com/v2/repositories/${{ secrets.DOCKERHUB_USERNAME }}/nxfilter/tags/${{ steps.curl.outputs.NXFILTER_VER_NUM }} > /dev/null; echo $?)
-        if [ "$TAG_EXISTS" -eq 0 ]; then
-          echo "Image with tag '${{ steps.curl.outputs.NXFILTER_VER_NUM }}' already exists, exiting"
-          exit 0
-        fi
+      - name: Show workflow variables
+        run: |
+          echo "NxFilter Version: ${{ steps.version.outputs.NXF_VER }}"
+          echo "Build Date: ${{ steps.date.outputs.BUILD_TIME }}"
+          echo "Skip Build: ${{ steps.check.outputs.tag_exists }}"
 
-    - name: Run date command
-      id: date
-      run: |
-        buildTime=$(date +%Y-%m-%d" "%X)
-        echo "BUILD_TIME=$buildTime" >> $GITHUB_OUTPUT
-        # echo "::set-output name=output::$DATE"
+  build:
+    runs-on: ubuntu-latest
+    needs: prep
+    if: needs.prep.outputs.SKIP_BUILD != 'yes'
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            base_image: dhi.io/debian-base:trixie-debian13-dev
+          - platform: linux/arm64
+            base_image: dhi.io/debian-base:trixie-debian13-dev
+          - platform: linux/arm/v7
+            base_image: ubuntu:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-    - name: Build and push
-      id: docker_build
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        platforms: linux/amd64,linux/arm64
-        # platforms: linux/amd64,linux/arm/v7,linux/arm64
-        tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ steps.curl.outputs.NXFILTER_VER_NUM }}
-          ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:latest
-        build-args: |
-          VER_NUM=${{ steps.curl.outputs.NXFILTER_VER_NUM }}
-          BUILD_TIME=${{ steps.date.outputs.BUILD_TIME }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: ${{ matrix.platform }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:${{ needs.prep.outputs.NXF_VER }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/nxfilter:latest
+          build-args: |
+            BASE_IMAGE=${{ matrix.base_image }}
+            VER_NUM=${{ needs.prep.outputs.NXF_VER }}
+            BUILD_DATE=${{ needs.prep.outputs.BUILD_TIME }}

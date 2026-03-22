@@ -1,5 +1,5 @@
-# FROM ubuntu:latest
-FROM dhi.io/debian-base:trixie-debian13-dev
+ARG BASE_IMAGE=dhi.io/debian-base:trixie-debian13-dev
+FROM ${BASE_IMAGE}
 
 ARG VER_NUM=4.7.4.5
 ARG BUILD_DATE=$(date +%Y-%m-%d)
