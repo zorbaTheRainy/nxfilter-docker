@@ -116,6 +116,6 @@ jobs:
           docker manifest push ${DOCKER_REPO}:${NXF_VER}
           docker manifest push ${DOCKER_REPO}:latest
           # Clean up temp tags
-          docker manifest rm ${DOCKER_REPO}:${NXF_VER}-amd64 || true
-          docker manifest rm ${DOCKER_REPO}:${NXF_VER}-arm64 || true
-          docker manifest rm ${DOCKER_REPO}:${NXF_VER}-armv7 || true
+          # docker manifest rm ${DOCKER_REPO}:${NXF_VER}-amd64 || true
+          # docker manifest rm ${DOCKER_REPO}:${NXF_VER}-arm64 || true
+          # docker manifest rm ${DOCKER_REPO}:${NXF_VER}-armv7 || true
